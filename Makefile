@@ -7,12 +7,12 @@ env-up:
 	@docker compose up -d todo-postgres
 
 env-down:
-	@docker compose down todo-postgres
+	@docker compose down todo-postgres port-forwarder
 
 env-cleanup:
 	@read -p "Очистить все volume файлы окружения? [y/N]: " ans; \
 	if [ "$$ans" = "y" ]; then \
-		docker compose down todo-postgres && \
+		docker compose down todo-postgres port-forwarder && \
 		sudo rm -rf out/pgdata && \
 		echo "Файлы окружения очищены"; \
 	else \
@@ -51,3 +51,8 @@ migrate-action:
 	-path /migrations \
 	-database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@todo-postgres:5432/${POSTGRES_DB}?sslmode=disable \
 	"$(action)"
+
+app-run:
+	@export LOGGER_FOLDER=${PROJECT_ROOT}/out/logs && \
+	export POSTGRES_HOST=localhost && \
+	go run cmd/app/main.go
